@@ -1,0 +1,19 @@
+{% macro icon(name, size=18) -%}
+<svg width="{{ size }}" height="{{ size }}" class="icon" aria-hidden="true"><use href="/static/icons.svg#{{ name }}"></use></svg>
+{%- endmacro %}
+
+{% macro csrf(request) -%}
+<input type="hidden" name="csrf_token" value="{{ request.session.csrf_token }}">
+{%- endmacro %}
+
+{% macro field_error(name, errors) -%}
+{% if errors.get(name) %}<span class="field-error" id="error-{{ name }}">{{ errors[name] }}</span>{% endif %}
+{%- endmacro %}
+
+{% macro badge(status) -%}
+<span class="badge {{ status }}">{{ {'completed': 'Completed', 'in_progress': 'In Progress', 'planned': 'Planned', 'missing': 'Missing', 'withdrawn': 'Withdrawn', 'approved': 'Approved', 'pending_approval': 'Pending Approval'}.get(status, status) }}</span>
+{%- endmacro %}
+
+{% macro errors_summary(errors) -%}
+{% if errors %}<div class="notice error" role="alert"><strong>Please check the highlighted fields.</strong><ul>{% for field, message in errors.items() %}<li><a href="#{{ field }}">{{ message }}</a></li>{% endfor %}</ul></div>{% endif %}
+{%- endmacro %}

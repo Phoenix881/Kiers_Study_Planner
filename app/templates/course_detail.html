@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import icon %}
+{% block title %}{{ course.code }}{% endblock %}
+{% block content %}
+<a class="back-link" href="/courses">{{ icon('arrow-left',15) }}Course Explorer</a>
+<div class="page-heading"><div><p class="eyebrow code">{{ course.code }}</p><h1>{{ course.title }}</h1><p class="subheading">{{ course.units|units }} units / Level {{ course.level or 'unknown' }} / {{ course.department or 'Unknown department' }}</p></div></div>
+{% if course.data_status != 'official_imported' %}<div class="notice">Source status: {{ course.data_status|replace('_',' ') }}. This version has not been verified by an official import.</div>{% endif %}
+{% if course.academic_year and latest_year and course.academic_year < latest_year %}<div class="notice">Historical catalogue version. Latest imported year: {{ latest_year }}.</div>{% endif %}
+<div class="form-layout"><section>
+<div class="source-band"><h2>{{ 'Official source' if course.data_status == 'official_imported' else 'Source record' }}</h2>{% if course.source_url %}<p>HKBU University Student Handbook</p>{% endif %}
+<p>Catalogue academic year: {{ course.academic_year or 'Unknown' }}<br>Last imported: {{ course.last_checked_at.strftime('%Y-%m-%d %H:%M UTC') if course.last_checked_at else 'Not imported' }}</p>
+<div class="form-actions">{% if course.source_url %}<a class="button secondary" href="{{ course.source_url }}" target="_blank" rel="noopener noreferrer">{{ icon('external-link',16) }}View on HKBU Handbook</a>{% endif %}<a class="button secondary" href="{{ outline_url }}" target="_blank" rel="noopener noreferrer">{{ icon('external-link',16) }}View official course outline</a></div></div>
+<dl class="details-list course-details"><div><dt>Prerequisites</dt><dd>{{ course.prerequisite_text or 'Not recorded' }}</dd></div><div><dt>Corequisites</dt><dd>{{ course.corequisite_text or 'Not recorded' }}</dd></div><div><dt>Antirequisites</dt><dd>{{ course.antirequisite_text or 'Not recorded' }}</dd></div></dl>
+{% if course.description %}<p>{{ course.description }}</p>{% endif %}
+</section><aside class="form-aside"><h2>Add to study plan</h2>
+{% if profile %}<form method="get" action="/courses/{{ course.code }}/add"><input type="hidden" name="version_id" value="{{ course.id }}"><div class="field"><label for="term_id">Study period</label><select name="term_id" id="term_id" required>{% for term in profile.terms if not term.is_exchange %}<option value="{{ term.id }}">{{ term.academic_year.academic_year }} / {{ term.academic_year.label }} / {{ term.name }}</option>{% endfor %}</select></div><div class="form-actions"><button class="button primary">{{ icon('plus',16) }}Add to plan</button></div></form>{% else %}<a class="button primary" href="/profile">Set up study plan</a>{% endif %}
+</aside></div>
+{% endblock %}

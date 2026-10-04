@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import icon, csrf, field_error, errors_summary %}
+{% block title %}Academic profile{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">{{ request.session.username }}</p><h1>{{ 'Academic profile' if profile else 'Set up your study plan' }}</h1></div>{% if profile %}<a class="button secondary" href="/requirements">Study targets{{ icon('arrow-right',16) }}</a>{% endif %}</div>
+{% if request.query_params.get('saved') %}<div class="notice success">Profile saved.</div>{% endif %}
+<form method="post" action="/profile" class="main-form profile-form">{{ csrf(request) }}{{ errors_summary(errors) }}
+<fieldset><legend>Academic profile</legend><div class="form-grid">
+<div class="field"><label for="admission_year">Entry academic year</label><input id="admission_year" name="admission_year" placeholder="2024/2025" value="{{ values.admission_year|default('') }}" required>{{ field_error('admission_year', errors) }}</div>
+<div class="field"><label for="required_total_units">Required total units</label><input type="number" id="required_total_units" name="required_total_units" min="0.01" max="9999" step="0.01" value="{{ values.required_total_units|default(128) }}" required>{{ field_error('required_total_units', errors) }}</div>
+<div class="field full"><label for="programme_name">Programme</label><input id="programme_name" name="programme_name" maxlength="200" value="{{ values.programme_name|default('') }}" required>{{ field_error('programme_name', errors) }}</div>
+<div class="field full"><label for="minor_name">Minor <span class="optional">Optional</span></label><input id="minor_name" name="minor_name" maxlength="200" value="{{ values.minor_name|default('', true) }}">{{ field_error('minor_name', errors) }}</div>
+</div></fieldset>
+<div class="form-actions"><button class="button primary">{{ icon('check') }}{{ 'Save profile' if profile else 'Create study plan' }}</button></div>
+</form>
+<section class="account-security"><h2>Account security</h2><a class="button secondary" href="/account/security">{{ icon('settings-2',16) }}Change password</a></section>
+<section class="admin-section"><h2>Delete account</h2><a class="button secondary danger" href="/account/delete">{{ icon('trash-2',16) }}Delete account and planner data</a></section>
+{% endblock %}

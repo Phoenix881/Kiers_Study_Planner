@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import icon %}
+{% block title %}Progress{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">{{ profile.admission_year }} ENTRY</p><h1>Requirement tracking</h1><p class="subheading">{{ profile.programme_name }}</p></div><a class="button secondary" href="/requirements">{{ icon('pencil',16) }}Edit targets</a></div>
+{% include 'partials/metrics.html' %}
+{% include 'partials/progress_bar.html' %}
+{% include 'partials/progress_table.html' %}
+{% if overview.audit.warnings %}<section class="calculation-notes" id="calculation-notes"><h2>Plan notes</h2><ul>{% for warning in overview.audit.warnings %}<li>{{ warning }}</li>{% endfor %}</ul></section>{% endif %}
+<p class="field-note">Targets and transfer approvals are student-entered. This is not an official graduation decision.</p>
+{% endblock %}

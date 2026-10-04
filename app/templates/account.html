@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import csrf, errors_summary, icon %}
+{% block title %}{{ heading }}{% endblock %}
+{% block content %}
+<div class="auth-layout"><p class="eyebrow">{{ site_name }}</p><h1>{{ heading }}</h1>
+{% if message %}<p role="status">{{ message }}</p>{% endif %}
+{{ errors_summary(errors) }}
+{% if mode == 'check' %}<form method="post" action="/resend-verification">{{ csrf(request) }}<button class="button secondary">Resend verification email</button></form><p class="field-note"><a href="/login">Back to sign in</a></p>
+{% elif mode == 'forgot' %}<form class="main-form" method="post" action="/forgot-password">{{ csrf(request) }}<div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" maxlength="254" required></div><button class="button primary">Send reset link</button></form>
+{% elif mode == 'verify' %}<form method="post" action="/verify-email">{{ csrf(request) }}<button class="button primary">Verify email</button></form>
+{% elif mode in ['reset','change'] %}<form class="main-form" method="post" action="{{ '/account/security' if mode == 'change' else '/reset-password' }}">{{ csrf(request) }}
+{% if mode == 'change' %}<div class="field"><label for="current_password">Current password</label><input id="current_password" name="current_password" type="password" autocomplete="current-password" maxlength="1024" required></div>{% endif %}
+<div class="field"><label for="password">New password</label><input id="password" name="password" type="password" minlength="12" maxlength="1024" autocomplete="new-password" required></div>
+<div class="field"><label for="password_confirmation">Confirm new password</label><input id="password_confirmation" name="password_confirmation" type="password" minlength="12" maxlength="1024" autocomplete="new-password" required></div>
+<div class="form-actions"><button class="button primary">{{ 'Change password' if mode == 'change' else 'Reset password' }}</button><a href="{{ '/profile' if mode == 'change' else '/login' }}">Cancel</a></div></form>
+{% elif mode == 'invalid' %}<a class="button secondary" href="/forgot-password">Request reset link</a><p class="field-note"><a href="/login">Sign in / resend verification</a></p>
+{% elif mode == 'changed' %}<a class="button secondary" href="/profile">Back to profile</a>
+{% else %}<a class="button primary" href="/login">Sign in</a>{% endif %}
+</div>
+{% endblock %}

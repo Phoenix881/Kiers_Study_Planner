@@ -1,0 +1,33 @@
+<!-- Lucide icons, ISC license. See LUCIDE-LICENSE.txt. -->
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
+  <symbol id="shield-check" viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4m7 14 5-5-5-5m5 5H9"/></symbol>
+  <symbol id="book-open" viewBox="0 0 24 24"><path d="M12 7v14m-9-3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></symbol>
+  <symbol id="layout-dashboard" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></symbol>
+  <symbol id="calendar-days" viewBox="0 0 24 24"><path d="M8 2v4m8-4v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></symbol>
+  <symbol id="list-checks" viewBox="0 0 24 24"><path d="m3 6 2 2 4-4m-6 12 2 2 4-4M13 6h8m-8 10h8"/></symbol>
+  <symbol id="search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="user-round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></symbol>
+  <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path d="m20 6-11 11-5-5"/></symbol>
+  <symbol id="arrow-right" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></symbol>
+  <symbol id="arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7m-7 7h14"/></symbol>
+  <symbol id="download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol>
+  <symbol id="external-link" viewBox="0 0 24 24"><path d="M15 3h6v6m-11 5L21 3M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></symbol>
+  <symbol id="pencil" viewBox="0 0 24 24"><path d="M17 3a2.85 2.85 0 0 1 4 4L7 21l-5 1 1-5ZM15 5l4 4"/></symbol>
+  <symbol id="trash-2" viewBox="0 0 24 24"><path d="M3 6h18m-2 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6m3 0V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m-6 4v7m4-7v7"/></symbol>
+  <symbol id="plane" viewBox="0 0 24 24"><path d="M17.8 8.6 21 9c1 .1 1.4 1.3.7 2l-3.5 3.5-1.4 5.2-2.1 2.1-.7-5.7-4.2-4.2-5.7-.7 2.1-2.1 5.2-1.4L15 4.2c.7-.7 1.9-.3 2 0.7z"/></symbol>
+  <symbol id="settings-2" viewBox="0 0 24 24"><path d="M20 7h-9m3 10H5M5 7H4m16 10h-1"/><circle cx="8" cy="7" r="3"/><circle cx="17" cy="17" r="3"/></symbol>
+  <symbol id="info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></symbol>
+  <symbol id="chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+  <symbol id="folder-input" viewBox="0 0 24 24"><path d="M2 9V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1m0-4h10m-3-3 3 3-3 3"/></symbol>
+  <symbol id="arrow-up" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7M12 19V5"/></symbol>
+  <symbol id="arrow-down" viewBox="0 0 24 24"><path d="M12 5v14m7-7-7 7-7-7"/></symbol>
+  <symbol id="indent-increase" viewBox="0 0 24 24"><path d="m3 8 4 4-4 4M21 12H11M21 6H11M21 18H11"/></symbol>
+  <symbol id="indent-decrease" viewBox="0 0 24 24"><path d="m7 8-4 4 4 4M21 12H11M21 6H11M21 18H11"/></symbol>
+  <symbol id="grip-vertical" viewBox="0 0 24 24"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></symbol>
+  <symbol id="sun-moon" viewBox="0 0 24 24"><path d="M12 2v2m-5.07.93 1.42 1.42M2 12h2m.93 7.07 1.42-1.42M12 20v2m5.07-2.93 1.42 1.42M20 12h2m-2.93-7.07 1.42-1.42"/><path d="M12 8a4 4 0 1 0 4 4 4 4 0 0 1-4-4Z"/></symbol>
+</svg>

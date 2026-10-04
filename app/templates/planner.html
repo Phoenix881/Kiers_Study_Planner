@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import icon, csrf, errors_summary %}
+{% block title %}Study Planner{% endblock %}
+{% macro move_controls(kind, row) %}
+{% for direction, symbol in [('up','arrow-left'),('down','arrow-right')] %}<form method="post" action="/planner/{{ kind }}/{{ row.id }}/move">{{ csrf(request) }}<button class="icon-button" name="direction" value="{{ direction }}" title="Move {{ direction }}" aria-label="Move {{ row.label|default(row.name) }} {{ direction }}">{{ icon(symbol,16) }}</button></form>{% endfor %}
+{% endmacro %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">{{ profile.admission_year }} ENTRY</p><h1>Study Planner</h1><p class="subheading">{{ profile.programme_name }}</p></div><div class="actions"><a class="button secondary" href="/export/json">{{ icon('download') }}Export plan</a><a class="button primary" href="/courses">{{ icon('search') }}Find a course</a></div></div>
+{% if request.query_params.get('saved') %}<div class="notice success" role="status">Changes saved.</div>{% endif %}
+{% include 'partials/metrics.html' %}
+{% if overview.audit.warnings %}<details class="review-notes"><summary>{{ icon('info',16) }}{{ overview.audit.warnings|length }} plan notes</summary><ul>{% for warning in overview.audit.warnings %}<li>{{ warning }}</li>{% endfor %}</ul></details>{% endif %}
+<nav class="year-nav" aria-label="Academic years">{% for year in profile.academic_years %}<a href="#year-{{ year.id }}">{{ year.label }}<span>{{ year.academic_year }}</span></a>{% endfor %}</nav>
+{% for year in profile.academic_years %}
+<section class="study-year" id="year-{{ year.id }}">
+<div class="year-heading"><h2>{{ year.academic_year }} <span class="muted">/ {{ year.label }}</span></h2><div class="actions">{{ move_controls('years',year) }}</div></div>
+{% if year.notes %}<p class="muted">{{ year.notes }}</p>{% endif %}
+<details class="timeline-settings"><summary>{{ icon('pencil',14) }}Edit academic year</summary>
+<form class="compact-form" method="post" action="/planner/years/{{ year.id }}/edit">{{ csrf(request) }}
+<div class="field"><label for="year-string-{{ year.id }}">Academic year</label><input id="year-string-{{ year.id }}" name="academic_year" value="{{ year.academic_year }}" required></div>
+<div class="field"><label for="year-label-{{ year.id }}">Label</label><input id="year-label-{{ year.id }}" name="label" value="{{ year.label }}" maxlength="160" required></div>
+<div class="field"><label for="year-notes-{{ year.id }}">Notes</label><input id="year-notes-{{ year.id }}" name="notes" value="{{ year.notes or '' }}" maxlength="4000"></div>
+<button class="button small">{{ icon('check',15) }}Save year</button></form>
+<form method="post" action="/planner/years/{{ year.id }}/delete" data-confirm="Delete this empty academic year and its empty periods?">{{ csrf(request) }}<button class="button small danger">{{ icon('trash-2',15) }}Delete empty year</button></form>
+</details>
+{% for summary in overview.terms if summary.term.academic_year_id == year.id %}
+{% set term = summary.term %}
+<section class="term-section{% if term.is_exchange %} exchange-term{% endif %}" id="term-{{ term.id }}" aria-labelledby="term-title-{{ term.id }}">
+<div class="term-heading"><div class="term-name"><h3 id="term-title-{{ term.id }}">{{ term.name }}</h3>{% if term.is_exchange %}<span class="exchange-label">{{ icon('plane',14) }}Exchange</span><span class="host-name">{{ term.host_university or 'Host university not set' }}</span>{% endif %}</div><a class="button small" href="/planner/terms/{{ term.id }}/{{ 'exchange-courses' if term.is_exchange else 'courses' }}/new">{{ icon('plus',15) }}{{ 'Add exchange course' if term.is_exchange else 'Add course' }}</a></div>
+{% include 'partials/term_table.html' %}
+<details class="term-settings" {% if error_term_id|default(0) == term.id %}open{% endif %}><summary>{{ icon('settings-2',14) }}Period settings</summary>
+{% set settings_values = term_values if error_term_id|default(0) == term.id else term %}
+<form method="post" action="/planner/terms/{{ term.id }}/exchange" class="settings-form">{{ csrf(request) }}{% if error_term_id|default(0) == term.id %}{{ errors_summary(errors) }}{% endif %}
+<label class="checkbox-label" for="is-exchange-{{ term.id }}"><input type="checkbox" id="is-exchange-{{ term.id }}" name="is_exchange" value="true" {% if settings_values.is_exchange %}checked{% endif %}>Exchange period</label>
+<div class="field"><label for="host-{{ term.id }}">Host university</label><input id="host-{{ term.id }}" name="host_university" maxlength="200" value="{{ settings_values.host_university|default('',true) }}"></div>
+<div class="field"><label for="term-notes-{{ term.id }}">Period notes</label><input id="term-notes-{{ term.id }}" name="notes" maxlength="4000" value="{{ settings_values.notes|default('',true) }}"></div>
+<button class="button small">{{ icon('check',15) }}Save period</button></form>
+<form class="compact-form" method="post" action="/planner/terms/{{ term.id }}/rename">{{ csrf(request) }}<input type="hidden" name="term_type" value="{{ term.term_type }}">
+<div class="field"><label for="period-name-{{ term.id }}">Period name</label><input id="period-name-{{ term.id }}" name="name" value="{{ term.name }}" maxlength="160" required></div><button class="button small">{{ icon('check',15) }}Rename period</button></form>
+<div class="actions">{{ move_controls('terms',term) }}<form method="post" action="/planner/terms/{{ term.id }}/delete" data-confirm="Delete this empty period?">{{ csrf(request) }}<button class="icon-button danger" title="Delete empty period" aria-label="Delete {{ term.name }}">{{ icon('trash-2',16) }}</button></form></div>
+</details>
+</section>
+{% endfor %}
+<div class="period-actions">
+{% if not year.periods|selectattr('term_type','equalto','summer')|list %}<form method="post" action="/planner/years/{{ year.id }}/periods">{{ csrf(request) }}<input type="hidden" name="name" value="Summer Term"><input type="hidden" name="term_type" value="summer"><button class="button small secondary">{{ icon('plus',15) }}Add Summer Term</button></form>{% endif %}
+<details><summary>{{ icon('plus',15) }}Add study period</summary><form class="compact-form" method="post" action="/planner/years/{{ year.id }}/periods">{{ csrf(request) }}<div class="field"><label for="new-period-{{ year.id }}">Period name</label><input id="new-period-{{ year.id }}" name="name" maxlength="160" placeholder="Placement" required></div><button class="button small">{{ icon('plus',15) }}Add period</button></form></details>
+</div>
+</section>{% endfor %}
+<section class="group-section"><h2>Add academic year</h2>
+<form class="compact-form" method="post" action="/planner/years">{{ csrf(request) }}
+<div class="field"><label for="new-academic-year">Academic year</label><input id="new-academic-year" name="academic_year" placeholder="2028/2029" required></div>
+<div class="field"><label for="new-year-label">Label</label><input id="new-year-label" name="label" maxlength="160" placeholder="Placement Programme" required></div>
+<button class="button secondary">{{ icon('plus',16) }}Add year</button></form></section>
+{% endblock %}

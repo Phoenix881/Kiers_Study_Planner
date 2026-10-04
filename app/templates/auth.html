@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import csrf, errors_summary, icon %}
+{% block title %}{{ 'Register' if register else 'Sign in' }}{% endblock %}
+{% block content %}
+<div class="auth-layout"><div class="page-heading"><div><p class="eyebrow">{{ site_name }}</p><h1>{{ 'Create your account' if register else 'Sign in' }}</h1></div></div>
+{% if register and registration_mode == 'closed' %}<p role="status">Registration is currently closed.</p><a class="button primary" href="/login">Sign in</a>{% else %}
+<form method="post" class="main-form" action="{{ '/register' if register else '/login' }}">{{ csrf(request) }}{{ errors_summary(errors) }}
+{% if register %}
+{% if registration_mode == 'invite' %}<div class="field"><label for="invite_code">Beta access code</label><input id="invite_code" name="invite_code" type="password" maxlength="256" autocomplete="off" required></div>{% endif %}
+<div class="field"><label for="email">Email</label><input id="email" name="email" type="email" maxlength="254" autocomplete="email" aria-describedby="email-purpose" value="{{ values.email|default('') }}" required><small id="email-purpose" class="muted">Your email is used for account verification and password recovery.</small></div>
+<div class="field"><label for="username">Username</label><input id="username" name="username" minlength="3" maxlength="80" autocomplete="username" value="{{ values.username|default('') }}" required></div>
+{% else %}<div class="field"><label for="identifier">Email or username</label><input id="identifier" name="identifier" autocomplete="username" value="{{ values.identifier|default('') }}" required></div>{% endif %}
+<div class="field"><label for="password">Password{% if register %} <span class="optional">12 characters minimum</span>{% endif %}</label><input id="password" name="password" type="password" {% if register %}minlength="12"{% endif %} maxlength="1024" autocomplete="{{ 'new-password' if register else 'current-password' }}" required></div>
+{% if register %}<div class="field"><label for="password_confirmation">Confirm password</label><input id="password_confirmation" name="password_confirmation" type="password" autocomplete="new-password" required></div>{% endif %}
+<div class="form-actions"><button class="button primary">{{ icon('user-round') }}{{ 'Create account' if register else 'Sign in' }}</button><a href="{{ '/login' if register else '/register' }}">{{ 'Sign in' if register else 'Create account' }}</a></div>
+</form>{% if not register %}<p class="field-note"><a href="/forgot-password">Forgot your password?</a></p>{% endif %}{% endif %}</div>
+{% endblock %}

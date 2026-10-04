@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import icon, csrf, field_error, errors_summary %}
+{% set kind = 'exchange course' if exchange else 'course' %}
+{% block title %}{{ 'Edit' if entry else 'Add' }} {{ kind }}{% endblock %}
+{% block content %}
+<a class="back-link" href="/planner#term-{{ term.id }}">{{ icon('arrow-left', 15) }}Study Planner</a>
+<div class="page-heading"><div><p class="eyebrow">{{ term.academic_year.label }} / {{ term.name }}</p><h1>{{ 'Edit' if entry else 'Add' }} {{ kind }}</h1><p class="subheading">{{ term.host_university or 'Exchange semester' if exchange else term.academic_year.academic_year }}</p></div></div>
+{% set resource = 'exchange-courses' if exchange else 'courses' %}
+{% set action = '/planner/' ~ resource ~ '/' ~ entry.id ~ '/edit' if entry else '/planner/terms/' ~ term.id ~ '/' ~ resource %}
+<div class="form-layout">
+<form method="post" action="{{ action }}" class="main-form" {% if not exchange %}data-course-form{% endif %}>
+{{ csrf(request) }}{{ errors_summary(errors) }}
+{% if not exchange %}<input type="hidden" name="course_version_id" id="course_version_id" value="{{ values.course_version_id|default('',true) }}"><input type="hidden" name="course_id" id="course_id" value="{{ values.course_id|default('',true) }}">{% endif %}
+{% if entry %}<fieldset><legend>Term</legend><div class="field"><label for="term_id">Study term</label><select id="term_id" name="term_id">{% for t in terms if t.is_exchange == exchange %}<option value="{{ t.id }}" {% if (values.term_id|default(term.id)|int) == t.id %}selected{% endif %}>{{ t.academic_year.academic_year }} / {{ t.academic_year.label }} / {{ t.name }}</option>{% endfor %}</select>{{ field_error('term_id', errors) }}</div></fieldset>{% endif %}
+<fieldset><legend>{{ 'Host course' if exchange else 'Course details' }}</legend><div class="form-grid">
+{% if exchange %}
+<div class="field"><label for="host_course_code">Host course code <span class="optional">Optional</span></label><input id="host_course_code" name="host_course_code" maxlength="80" value="{{ values.host_course_code|default('',true) }}">{{ field_error('host_course_code', errors) }}</div>
+<div class="field"><label for="host_units">Host units <span class="optional">Optional</span></label><input id="host_units" name="host_units" type="number" min="0" max="9999" step="0.01" value="{{ values.host_units if values.host_units is defined and values.host_units is not none else '' }}">{{ field_error('host_units', errors) }}</div>
+<div class="field full"><label for="host_course_title">Host course title</label><input id="host_course_title" name="host_course_title" maxlength="240" value="{{ values.host_course_title|default('') }}" required>{{ field_error('host_course_title', errors) }}</div>
+<div class="field"><label for="host_grade">Host grade <span class="optional">Optional</span></label><input id="host_grade" name="host_grade" maxlength="40" value="{{ values.host_grade|default('',true) }}">{{ field_error('host_grade', errors) }}</div>
+{% else %}
+<div class="field full catalogue-combobox" data-autocomplete data-year="{{ catalogue_year or 'unknown' }}"><label for="catalogue-search">Course code or title</label><input id="catalogue-search" maxlength="200" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="catalogue-options" aria-expanded="false" placeholder="COMP2015 or Data Structures"><ul id="catalogue-options" role="listbox" hidden></ul><span class="muted" data-search-status role="status"></span></div>
+<div class="field"><label for="course_code_snapshot">Course code</label><input id="course_code_snapshot" name="course_code_snapshot" maxlength="30" value="{{ values.course_code_snapshot|default('') }}" placeholder="MATH3206" autocomplete="off" required>{{ field_error('course_code_snapshot', errors) }}</div>
+<div class="field"><label for="units">Units</label><input id="units" name="units" type="number" min="0" max="9999" step="0.01" value="{{ values.units|default(3) }}" required>{{ field_error('units', errors) }}</div>
+<div class="field full"><label for="course_title_snapshot">Course title</label><input id="course_title_snapshot" name="course_title_snapshot" maxlength="240" value="{{ values.course_title_snapshot|default('') }}" required>{{ field_error('course_title_snapshot', errors) }}</div>
+{% endif %}
+</div></fieldset>
+<fieldset><legend>{{ 'HKBU credit transfer' if exchange else 'Academic record' }}</legend><div class="form-grid">
+{% if exchange %}
+<div class="field"><label for="hkbu_equivalent_code">HKBU equivalent code <span class="optional">Optional</span></label><input id="hkbu_equivalent_code" name="hkbu_equivalent_code" maxlength="30" value="{{ values.hkbu_equivalent_code|default('',true) }}" placeholder="COMP2015">{{ field_error('hkbu_equivalent_code', errors) }}</div>
+<div class="field"><label for="transferred_units">Transferred HKBU units</label><input id="transferred_units" name="transferred_units" type="number" min="0" max="9999" step="0.01" value="{{ values.transferred_units|default(3) }}" required>{{ field_error('transferred_units', errors) }}</div>
+<div class="field full"><label for="hkbu_equivalent_title">HKBU equivalent title <span class="optional">Optional</span></label><input id="hkbu_equivalent_title" name="hkbu_equivalent_title" maxlength="240" value="{{ values.hkbu_equivalent_title|default('',true) }}" placeholder="Specific equivalent, if known">{{ field_error('hkbu_equivalent_title', errors) }}</div>
+{% endif %}
+
+{% if exchange %}<div class="field"><label for="transfer_status">Transfer status</label><select id="transfer_status" name="transfer_status">{% for value, label in transfer_statuses.items() %}<option value="{{ value }}" {% if values.transfer_status|default('planned') == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>{{ field_error('transfer_status', errors) }}</div>
+{% else %}<div class="field"><label for="status">Status</label><select id="status" name="status">{% for value, label in statuses.items() %}<option value="{{ value }}" {% if values.status|default('planned') == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>{{ field_error('status', errors) }}</div>
+<div class="field"><label for="grade">Grade <span class="optional">Optional</span></label><select id="grade" name="grade"><option value="">Not yet graded</option>{% for grade in grades %}<option {% if values.grade == grade %}selected{% endif %}>{{ grade }}</option>{% endfor %}</select>{{ field_error('grade', errors) }}</div>{% endif %}
+<div class="field full"><label for="notes">Notes <span class="optional">Optional</span></label><textarea id="notes" name="notes" rows="3" maxlength="4000">{{ values.notes|default('',true) }}</textarea>{{ field_error('notes', errors) }}</div>
+</div></fieldset>
+{% if not exchange %}<label class="checkbox-label"><input type="checkbox" name="exceptional_repeat" value="true" {% if values.exceptional_repeat %}checked{% endif %}>Program-required exceptional repeat</label>{% endif %}
+<fieldset class="allocations"><legend>Counts toward</legend>
+<div data-allocations>
+{% for allocation in allocation_values or [{}] %}<div class="allocation-row">
+<div class="field"><label for="allocation-group-{{ loop.index }}">Target</label><select id="allocation-group-{{ loop.index }}" name="allocation_group_id"><option value="">Unallocated</option>{% for node in allocation_tree %}{% set group = node.group %}<option value="{{ group.id }}" {% if group.aggregation_mode == 'sum_children' %}disabled{% endif %} {% if allocation.requirement_group_id|default('')|string == group.id|string %}selected{% endif %}>{{ node.path }}</option>{% endfor %}</select></div>
+<div class="field"><label for="allocation-units-{{ loop.index }}">Allocated units</label><input id="allocation-units-{{ loop.index }}" name="allocated_units" type="number" min="0" max="9999" step="0.01" placeholder="Full course units" value="{{ allocation.allocated_units|default('') }}"></div>
+<button type="button" class="icon-button danger" data-remove-allocation title="Remove allocation" aria-label="Remove allocation">{{ icon('trash-2',16) }}</button>
+</div>{% endfor %}</div>
+<button type="button" class="button small secondary" data-add-allocation>{{ icon('plus',15) }}Add another allocation</button>
+</fieldset>
+<div class="form-actions"><button class="button primary" type="submit">{{ icon('check') }}{{ 'Save changes' if entry else 'Add to plan' }}</button><a class="button secondary" href="/planner#term-{{ term.id }}">Cancel</a></div>
+</form>
+<aside class="form-aside"><h2>{{ 'Exchange transfer' if exchange else 'Course record' }}</h2><dl class="details-list"><div><dt>Study year</dt><dd>{{ term.academic_year.label }}</dd></div><div><dt>Term</dt><dd>{{ term.name }}</dd></div><div><dt>Academic year</dt><dd>{{ term.academic_year.academic_year }}</dd></div></dl>
+{% if exchange %}<div class="aside-note"><h3>Approval status</h3><p>Only approved transferred units count as earned units. Planned and pending transfers count toward projected units.</p></div><div class="notice">Equivalency and unit transfer remain subject to HKBU approval. Host grades never affect HKBU GPA.</div>
+{% else %}<div class="aside-note"><h3>Units &amp; grades</h3><p>S and DT earn units without affecting GPA. W earns no units. F contributes attempted GPA units and zero grade points.</p></div><div class="aside-note"><h3>Record source</h3><p data-course-source>{{ "Catalogue-linked snapshot" if values.course_version_id|default(none) else "Manual entry" }}{% if entry and entry.course_version %} / {{ entry.course_version.academic_year or 'Unknown year' }}{% elif values.source_year %} / {{ values.source_year }}{% endif %}</p><p>Level: <span data-course-level>{{ values.level_snapshot|default('Unknown',true) }}</span></p>{% if entry and entry.course_version %}<a data-provenance-link href="/courses/{{ entry.course_code_snapshot }}?version_id={{ entry.course_version_id }}">Catalogue provenance</a>{% endif %}</div>{% endif %}
+</aside></div>
+{% endblock %}

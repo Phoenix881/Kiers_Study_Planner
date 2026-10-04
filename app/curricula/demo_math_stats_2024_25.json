@@ -1,0 +1,21 @@
+{
+  "key": "demo_math_stats_2024_25",
+  "name": "Mathematics and Statistics - Demo 2024/25",
+  "admission_year": "2024/25",
+  "version": 1,
+  "is_demo": true,
+  "required_total_units": 128,
+  "source_urls": [],
+  "notes": "Illustrative targets only. These group totals and required courses have not been verified against the programme curriculum. The total-unit target comes from your profile.",
+  "rules": [
+    {"id": "total_units", "type": "TOTAL_UNITS", "label": "Total degree units", "required_units": 128},
+    {"id": "major_core", "type": "GROUP_UNITS", "label": "Major Core", "group": "Major Core", "required_units": 40},
+    {"id": "major_elective", "type": "GROUP_UNITS", "label": "Major Elective", "group": "Major Elective", "required_units": 24},
+    {"id": "university_core", "type": "GROUP_UNITS", "label": "University Core", "group": "University Core", "required_units": 13},
+    {"id": "ge", "type": "GROUP_UNITS", "label": "General Education", "group": "General Education", "required_units": 15},
+    {"id": "minor_core", "type": "GROUP_UNITS", "label": "Minor Core", "group": "Minor Core", "required_units": 6},
+    {"id": "advanced", "type": "MIN_LEVEL_UNITS", "label": "Level 3 / 4 units", "minimum_level": 3, "required_units": 36},
+    {"id": "calculus", "type": "REQUIRED_COURSE", "label": "Calculus I", "course_code": "MATH1005"},
+    {"id": "project", "type": "REQUIRED_COURSE", "label": "Mathematical Science Project I", "course_code": "MATH4998"}
+  ]
+}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import icon %}
+{% block title %}Course Explorer{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">LOCAL HANDBOOK CATALOGUE</p><h1>Course Explorer</h1><p class="subheading">Catalogue academic year: {{ selected_year or 'Unknown / unverified' }}</p></div></div>
+<form method="get" action="/courses" class="compact-form catalogue-filters">
+<div class="field"><label for="q">Course code or title</label><input name="q" id="q" value="{{ q }}" maxlength="200" placeholder="MATH3206 or Calculus"></div>
+<div class="field"><label for="year">Academic year</label><select name="year" id="year">{% for year in years %}<option value="{{ year or 'unknown' }}" {% if (year or 'unknown') == (selected_year or 'unknown') %}selected{% endif %}>{{ year or 'Unknown / demo' }}</option>{% endfor %}</select></div>
+<div class="field"><label for="level">Level</label><select name="level" id="level">{% for value,label in [('undergraduate','Undergraduate (1-4)'),('all','All levels'),('unknown','Unknown')] %}<option value="{{ value }}" {% if level == value %}selected{% endif %}>{{ label }}</option>{% endfor %}{% for number in range(1,10) %}<option value="{{ number }}" {% if level == number|string %}selected{% endif %}>Level {{ number }}</option>{% endfor %}</select></div>
+<div class="field"><label for="prefix">Course prefix</label><select name="prefix" id="prefix"><option value="">All prefixes</option>{% for p in prefixes %}<option {% if p == prefix %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></div>
+<button class="button primary">{{ icon('search',16) }}Search</button></form>
+{% if selected_year and latest_year and selected_year != latest_year %}<div class="notice">An older catalogue year is selected. Latest imported year: {{ latest_year }}.</div>{% endif %}
+<div class="section-heading results-heading"><h2>Showing {{ pagination.start }}&ndash;{{ pagination.end }} of {{ pagination.total }}</h2><span class="muted">Page {{ pagination.page }} of {{ pagination.pages }}</span></div>
+<div class="table-scroll" role="region" aria-label="Course search results" tabindex="0"><table class="catalogue-table"><thead><tr><th scope="col">Course code</th><th scope="col">Course title</th><th scope="col" class="num">Units</th><th scope="col">Level</th><th scope="col">Department / prefix</th><th scope="col">Source status</th></tr></thead><tbody>
+{% for course in courses %}<tr><td class="code"><a href="/courses/{{ course.code }}?version_id={{ course.id }}">{{ course.code }}</a></td><td><a class="course-title-link" href="/courses/{{ course.code }}?version_id={{ course.id }}">{{ course.title }}</a></td><td class="num">{{ course.units|units }}</td><td>{{ course.level or 'Unknown' }}</td><td>{{ course.department or 'Unknown' }}</td><td>{{ course.data_status|replace('_',' ') }}</td></tr>{% else %}<tr><td colspan="6" class="empty-row">No courses match these filters. <a href="/planner">Study Planner</a></td></tr>{% endfor %}
+</tbody></table></div>
+<nav class="pagination" aria-label="Catalogue pages">
+{% if pagination.page > 1 %}<a class="icon-button" href="{{ page_url(pagination.page - 1) }}" title="Previous page" aria-label="Previous page">{{ icon('arrow-left') }}</a>{% endif %}
+{% if page_numbers.start > 1 %}<a href="{{ page_url(1) }}">1</a><span>...</span>{% endif %}
+{% for number in page_numbers %}<a href="{{ page_url(number) }}" {% if number == pagination.page %}aria-current="page"{% endif %}>{{ number }}</a>{% endfor %}
+{% if page_numbers.stop <= pagination.pages %}<span>...</span><a href="{{ page_url(pagination.pages) }}">{{ pagination.pages }}</a>{% endif %}
+{% if pagination.page < pagination.pages %}<a class="icon-button" href="{{ page_url(pagination.page + 1) }}" title="Next page" aria-label="Next page">{{ icon('arrow-right') }}</a>{% endif %}
+</nav>
+{% endblock %}

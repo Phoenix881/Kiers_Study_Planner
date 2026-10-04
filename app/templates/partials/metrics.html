@@ -1,0 +1,7 @@
+{% set audit = overview.audit %}
+<div class="metrics-band">
+  <div class="metric"><span class="metric-label">Cumulative GPA</span><strong class="numeric" data-testid="cgpa">{{ overview.cgpa|gpa }}<small> / 4.00</small></strong><span class="metric-note">HKBU graded courses</span></div>
+  <div class="metric"><span class="metric-label">Earned units</span><strong class="numeric" data-testid="earned-units">{{ audit.earned_units|units }}<small> / {{ audit.required_units|units }}</small></strong><span class="metric-note">Completed &amp; approved transfers</span></div>
+  <div class="metric"><span class="metric-label">Projected units</span><strong class="numeric" data-testid="projected-units">{{ audit.projected_units|units }}<small> / {{ audit.required_units|units }}</small></strong><span class="metric-note">Including in-progress &amp; planned</span></div>
+  <div class="metric"><span class="metric-label">Configured targets reached</span><strong class="numeric">{{ audit.completed_count }}<small> / {{ audit.requirements|length }}</small></strong><span class="metric-note">Current progress</span></div>
+</div>

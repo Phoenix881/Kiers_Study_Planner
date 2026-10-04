@@ -1,0 +1,4 @@
+<div class="degree-progress" role="img" aria-label="{% for segment in overview.audit.segments %}{{ segment.units|units }} {{ segment.label }}{% if not loop.last %}; {% endif %}{% endfor %}">
+{% for segment in overview.audit.segments %}<span class="segment-{{ segment.key }}" style="width:{{ segment.width }}%" aria-hidden="true"></span>{% endfor %}
+</div>
+<div class="progress-legend" data-degree-legend>{% for segment in overview.audit.segments %}<span><span class="legend-swatch segment-{{ segment.key }}" aria-hidden="true"></span>{{ segment.units|units }} {{ segment.label }}</span>{% endfor %}</div>

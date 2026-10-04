@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import icon, csrf %}
+{% block title %}Targets{% endblock %}
+{% macro parent_options(selected, excluded=none) %}
+<option value="">Top level</option>{% for node in tree if node.group.aggregation_mode == 'sum_children' and node.group.id != excluded and excluded not in node.ancestors %}<option value="{{ node.group.id }}" {% if selected == node.group.id %}selected{% endif %}>{{ node.path }}</option>{% endfor %}
+{% endmacro %}
+{% macro controls(kind, row) %}
+<details class="target-menu"><summary class="icon-button" aria-label="Actions for {{ row.name|default(row.label) }}" title="Target actions">{{ icon('ellipsis',18) }}</summary>
+<div class="target-menu-panel">
+{% if kind == 'groups' %}
+<button type="button" data-open-dialog="target-edit-{{ row.id }}">{{ icon('pencil',16) }}Edit</button>
+<button type="button" data-open-dialog="target-move-{{ row.id }}">{{ icon('folder-input',16) }}Move to group</button>
+<form method="post" action="/requirements/groups/{{ row.id }}/parent">{{ csrf(request) }}<input type="hidden" name="parent_id" value=""><button>{{ icon('arrow-left',16) }}Move to top level</button></form>
+{% endif %}
+{% for direction, symbol in [('up','arrow-up'),('down','arrow-down')] %}<form method="post" action="/requirements/{{ kind }}/{{ row.id }}/move">{{ csrf(request) }}<button name="direction" value="{{ direction }}" aria-label="Move {{ row.name|default(row.label) }} {{ direction }}">{{ icon(symbol,16) }}Move {{ direction }}</button></form>{% endfor %}
+<form method="post" action="/requirements/{{ kind }}/{{ row.id }}/delete" data-confirm="Delete this target and its allocations? Courses will remain.">{{ csrf(request) }}<button class="danger">{{ icon('trash-2',16) }}Delete</button></form>
+</div></details>
+{% endmacro %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">YOUR STUDY PLAN</p><h1>Targets</h1><p class="subheading">{{ profile.programme_name }} / {{ profile.required_total_units|units }} total units</p></div><a class="button primary" href="/planner">Study Planner{{ icon('arrow-right',16) }}</a></div>
+<section><div class="section-heading"><h2>Your targets</h2><span data-tree-status role="status"></span></div>
+<div class="root-drop" data-root-drop>Top level</div>
+<div data-requirement-tree data-collapse-root="targets-{{ request.session.user_id }}-{{ profile.id }}" data-csrf="{{ request.session.csrf_token }}">
+{% for node in tree %}{% set group = node.group %}{% set container = group.aggregation_mode == 'sum_children' %}
+<div class="target-line {% if container %}container-node{% endif %}" data-tree-item="group-{{ group.id }}" data-ancestors="{{ node.ancestors|join(',') }}" data-node-id="{{ group.id }}" data-parent="{{ group.parent_id or '' }}" data-node-name="{{ group.name }}" style="--depth:{{ [node.depth,4]|min }}">
+<button type="button" class="icon-button drag-handle" draggable="true" title="Drag {{ group.name }}" aria-label="Drag {{ group.name }}">{{ icon('grip-vertical',16) }}</button>
+<div class="target-label">{% if container %}<button type="button" class="icon-button" data-collapse="group-{{ group.id }}" aria-expanded="true" aria-label="Collapse {{ group.name }}" title="Collapse {{ group.name }}">{{ icon('chevron-down',16) }}</button>{% elif node.depth %}{{ icon('chevron-right',14) }}{% endif %}<strong>{{ group.name }}</strong></div>
+<span class="target-kind">{{ 'Group of targets' if container else 'Single target' }}</span>
+<span class="target-units">{{ targets['group-' ~ group.id]|units }} units{% if container %}<small>{{ profile.requirement_groups|selectattr('parent_id','equalto',group.id)|list|length }} targets</small>{% endif %}</span>
+{{ controls('groups', group) }}
+</div>
+<dialog id="target-edit-{{ group.id }}" aria-labelledby="edit-title-{{ group.id }}" class="target-dialog">
+<h2 id="edit-title-{{ group.id }}">Edit {{ group.name }}</h2>
+<form method="post" action="/requirements/groups/{{ group.id }}/edit" class="main-form">{{ csrf(request) }}
+<div class="field"><label for="group-name-{{ group.id }}">Name</label><input id="group-name-{{ group.id }}" name="name" value="{{ group.name }}" required maxlength="100"></div>
+<div class="field"><label for="group-mode-{{ group.id }}">Target type</label><select id="group-mode-{{ group.id }}" name="aggregation_mode" data-target-mode><option value="own_target" {% if not container %}selected{% endif %}>Single target</option><option value="sum_children" {% if container %}selected{% endif %}>Group of targets</option></select></div>
+<div class="field"><label for="group-units-{{ group.id }}">Target units</label><input id="group-units-{{ group.id }}" name="required_units" type="number" min="0" max="9999" step="0.01" value="{{ group.required_units }}" {% if container %}hidden readonly{% endif %} required><output data-derived-target {% if not container %}hidden{% endif %}>{{ targets['group-' ~ group.id]|units if container else '0' }} (derived)</output></div>
+<div class="field"><label for="group-notes-{{ group.id }}">Notes</label><textarea id="group-notes-{{ group.id }}" name="notes" maxlength="4000">{{ group.notes or '' }}</textarea></div>
+<div class="form-actions"><button class="button primary">{{ icon('check',16) }}Save</button><button type="button" class="button secondary" data-close-dialog>Cancel</button></div></form></dialog>
+<dialog id="target-move-{{ group.id }}" aria-labelledby="move-title-{{ group.id }}" class="target-dialog"><h2 id="move-title-{{ group.id }}">Move {{ group.name }}</h2><form class="main-form" method="post" action="/requirements/groups/{{ group.id }}/parent">{{ csrf(request) }}<div class="field"><label for="move-group-{{ group.id }}">Move to group</label><select id="move-group-{{ group.id }}" name="parent_id">{{ parent_options(group.parent_id, group.id) }}</select></div><div class="form-actions"><button class="button primary">Move</button><button type="button" class="button secondary" data-close-dialog>Cancel</button></div></form></dialog>
+{% endfor %}</div>
+<form class="compact-form add-group" method="post" action="/requirements/groups">{{ csrf(request) }}
+<div class="field"><label for="new-group">New target</label><input id="new-group" name="name" list="group-suggestions" maxlength="100" required></div>
+<div class="field"><label for="new-group-parent">Move to group</label><select id="new-group-parent" name="parent_id">{{ parent_options(none) }}</select></div>
+<div class="field"><label for="new-group-mode">Target type</label><select id="new-group-mode" name="aggregation_mode" data-target-mode><option value="own_target">Single target</option><option value="sum_children">Group of targets</option></select></div>
+<div class="field narrow"><label for="new-group-units">Target units</label><input id="new-group-units" name="required_units" type="number" min="0" max="9999" step="0.01" value="0" required></div>
+<button class="button secondary">{{ icon('plus',16) }}Add target</button></form>
+<datalist id="group-suggestions">{% for name in group_suggestions %}<option value="{{ name }}">{% endfor %}</datalist></section>
+<section class="group-section"><div class="section-heading"><h2>Minimum-level targets</h2></div>
+{% for level in profile.level_requirements %}<div class="requirement-row">
+<form class="compact-form" method="post" action="/requirements/levels/{{ level.id }}/edit">{{ csrf(request) }}
+<div class="field"><label for="level-label-{{ level.id }}">Label</label><input id="level-label-{{ level.id }}" name="label" value="{{ level.label }}" maxlength="160" required></div>
+<div class="field narrow"><label for="level-min-{{ level.id }}">Minimum level</label><input id="level-min-{{ level.id }}" name="minimum_level" type="number" min="1" max="99" value="{{ level.minimum_level }}" required></div>
+<div class="field narrow"><label for="level-units-{{ level.id }}">Target units</label><input id="level-units-{{ level.id }}" name="required_units" type="number" min="0" max="9999" step="0.01" value="{{ level.required_units }}" required></div>
+<button class="icon-button" title="Save level target" aria-label="Save {{ level.label }}">{{ icon('check') }}</button></form>{{ controls('levels', level) }}</div>{% endfor %}
+<form class="compact-form add-level" method="post" action="/requirements/levels">{{ csrf(request) }}
+<div class="field"><label for="new-level-label">New level target</label><input id="new-level-label" name="label" placeholder="Level 3/4 minimum" maxlength="160" required></div>
+<div class="field narrow"><label for="new-level-min">Minimum level</label><input id="new-level-min" name="minimum_level" type="number" min="1" max="99" value="3" required></div>
+<div class="field narrow"><label for="new-level-units">Target units</label><input id="new-level-units" name="required_units" type="number" min="0" max="9999" step="0.01" required></div>
+<button class="button secondary">{{ icon('plus',16) }}Add level target</button></form>
+</section>
+{% endblock %}

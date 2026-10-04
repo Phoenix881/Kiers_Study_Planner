@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import csrf, icon %}
+{% block title %}Existing local study plan{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Existing local study plan</h1><p class="subheading">{{ legacy.programme_name }} / {{ legacy.admission_year }}</p></div></div>
+<p>{{ legacy.terms|length }} study periods are stored in this local plan.</p>
+<form method="post" action="/claim">{{ csrf(request) }}<div class="form-actions">
+<button class="button primary" name="choice" value="claim">{{ icon('check') }}Claim existing local study plan</button>
+<button class="button secondary" name="choice" value="new">{{ icon('plus') }}Create a new empty profile</button>
+</div></form>
+{% endblock %}

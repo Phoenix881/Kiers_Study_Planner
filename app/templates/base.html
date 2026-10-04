@@ -1,0 +1,44 @@
+{% from 'partials/macros.html' import icon, csrf %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    (() => {
+      let preference = {{ (request.session.get('theme_preference', 'system') if request.session.get('user_id') else none)|tojson }};
+      if (!preference) { try { preference = localStorage.getItem('theme'); } catch (_) {} }
+      if (!['system', 'light', 'dark'].includes(preference)) preference = 'system';
+      document.documentElement.dataset.themePreference = preference;
+      document.documentElement.dataset.theme = preference === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : preference;
+    })();
+  </script>
+  <title>{% block title %}Dashboard{% endblock %} | {{ site_name }}</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/planner.js" defer></script>
+  <script src="/static/theme.js" defer></script>
+  <script src="/static/requirements.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="/"><span class="brand-mark">{{ icon('book-open', 24) }}</span><span>{{ site_name }}</span></a>
+    <div class="actions account-controls"><span class="local-label"><span class="status-dot"></span>{{ request.session.username|default('Local workspace') }} <span class="version">v0.5</span></span>
+      <form data-theme-form data-signed-in="{{ 'true' if request.session.user_id else 'false' }}" class="theme-control">{{ csrf(request) }}<label for="theme-preference" class="sr-only">Theme</label>{{ icon('sun-moon',16) }}<select id="theme-preference" name="theme_preference" aria-label="Theme"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></form><span data-theme-error role="status" hidden></span>
+      {% if request.session.user_id %}<form method="post" action="/logout">{{ csrf(request) }}<button class="button small secondary">Sign out</button></form>{% endif %}</div>
+  </div>
+  <nav class="main-nav" aria-label="Main navigation">
+    {% for path, label, symbol in [('/', 'Dashboard', 'layout-dashboard'), ('/planner', 'Study Planner', 'calendar-days'), ('/audit', 'Progress', 'list-checks'), ('/courses', 'Course Explorer', 'search'), ('/requirements', 'Targets', 'list-checks'), ('/profile', 'Profile', 'user-round')] %}
+    {% set active = request.url.path == path or (path != '/' and request.url.path.startswith(path + '/')) %}
+    <a href="{{ path }}" class="nav-link{% if active %} active{% endif %}" {% if active %}aria-current="page"{% endif %}>{{ icon(symbol) }}{{ label }}</a>
+    {% endfor %}
+    {% if admin_access %}<a href="/admin" class="nav-link{% if request.url.path.startswith('/admin') %} active{% endif %}" {% if request.url.path.startswith('/admin') %}aria-current="page"{% endif %}>{{ icon('shield-check') }}Admin</a>{% endif %}
+  </nav>
+</header>
+<main id="main" class="main-content">{% block content %}{% endblock %}</main>
+<footer class="site-footer"><span>{{ site_name }} <span class="footer-divider">/</span> Independent planning tool</span><p>Not operated by or affiliated with Hong Kong Baptist University. Course information is sourced from linked official HKBU pages. Verify academic decisions using official university records, the <a href="https://handbook.ar.hkbu.edu.hk/" target="_blank" rel="noopener noreferrer">HKBU Student Handbook</a>, and academic advice.</p></footer>
+</body>
+</html>

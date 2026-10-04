@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% from 'partials/macros.html' import icon %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">{{ request.session.username }}</p><h1>Dashboard</h1><p class="subheading">{{ profile.programme_name }}</p><p class="profile-meta">Entry {{ profile.admission_year }}{% if profile.minor_name %} / Minor: {{ profile.minor_name }}{% endif %}</p></div><a class="button primary" href="/planner">Open Study Planner{{ icon('arrow-right',16) }}</a></div>
+{% include 'partials/metrics.html' %}
+<section><div class="section-heading"><h2>Your configured targets</h2><a class="text-link" href="/requirements">Edit targets{{ icon('pencil',15) }}</a></div>
+{% include 'partials/progress_bar.html' %}
+{% include 'partials/progress_table.html' %}
+</section>
+{% if overview.audit.warnings %}<details class="review-notes" open><summary>{{ icon('info',16) }}Plan notes</summary><ul>{% for warning in overview.audit.warnings %}<li>{{ warning }}</li>{% endfor %}</ul></details>{% endif %}
+{% if overview.current_term %}{% set summary = overview.current_term %}<section class="current-term"><div class="section-heading"><div><p class="eyebrow">CURRENT / NEXT PERIOD</p><h2>{{ summary.term.academic_year.academic_year }} / {{ summary.term.name }}</h2></div><a class="text-link" href="/planner#term-{{ summary.term.id }}">Open period{{ icon('arrow-right',15) }}</a></div>{% include 'partials/term_table.html' %}</section>{% endif %}
+{% endblock %}
